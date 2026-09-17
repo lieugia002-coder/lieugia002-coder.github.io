@@ -1,10 +1,572 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>Trang web của tôi</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--
+  Dự án cứu trợ khẩn cấp — Bản quyền 2026, tác giả: lieugia002
+  Mục đích: Tạo trải nghiệm tương tác vui nhộn, không nhằm mục đích thương mại.
+  Vui lòng không sao chép hoặc sử dụng mã nguồn này cho mục đích thương mại mà không có sự cho phép.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://img.vietqr.io data:; script-src 'self' 'unsafe-inline'; connect-src 'none'; frame-ancestors 'none';">
+<title>Dự Án Cứu Trợ Khẩn Cấp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #d8d5cc;
+    --paper: #eae7de;
+    --ink: #1c1a17;
+    --ink-soft: #4a4640;
+    --rule: #1c1a17;
+    --gold: #8a6d1e;
+    --danger-green: #1f7a2e;
+    --danger-green-bright: #2fb347;
+    --stamp-red: #8a1f1f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17130f; --paper: #211c17; --ink: #ece7dd; --ink-soft: #b7afa2;
+      --rule: #ece7dd; --gold: #c9a227; --danger-green: #2fb347; --danger-green-bright: #45d95f;
+      --stamp-red: #c14a4a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17130f; --paper: #211c17; --ink: #ece7dd; --ink-soft: #b7afa2;
+    --rule: #ece7dd; --gold: #c9a227; --danger-green: #2fb347; --danger-green-bright: #45d95f;
+    --stamp-red: #c14a4a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    filter: grayscale(100%) contrast(1.05);
+    overflow-x: hidden; position: relative; min-height: 100vh;
+  }
+
+  .tears { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow:hidden; }
+  .tear {
+    position: absolute; top: -20px; width: 6px; height: 14px;
+    background: linear-gradient(var(--ink-soft), transparent);
+    border-radius: 0 0 4px 4px; opacity: .35; animation: fall linear infinite;
+  }
+  @keyframes fall { to { transform: translateY(110vh); } }
+
+  .wrap { max-width: 700px; margin: 0 auto; padding: 28px 18px 90px; position: relative; z-index: 2; }
+
+  /* ---- Con dấu ---- */
+  .stamp {
+    position: absolute; top: 90px; right: 8px;
+    border: 4px solid var(--stamp-red); color: var(--stamp-red);
+    border-radius: 50%; width: 118px; height: 118px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    transform: rotate(-18deg); opacity: .8;
+    font-family: 'Special Elite', monospace; font-size: 11px; line-height: 1.3;
+    padding: 8px; z-index: 5; pointer-events: none;
+  }
+
+  /* ---- Đồng hồ đếm ngược ---- */
+  .countdown-bar {
+    text-align: center; font-size: 12px; color: var(--ink-soft);
+    border: 1px dashed var(--rule); padding: 8px; margin-bottom: 18px; background: var(--paper);
+  }
+  .countdown-bar strong { color: var(--ink); font-family: 'Special Elite', monospace; }
+
+  header.masthead { text-align: center; border-bottom: 3px double var(--rule); padding-bottom: 18px; margin-bottom: 22px; position: relative; }
+  .dateline { font-size: 11px; letter-spacing: .08em; color: var(--ink-soft); margin-bottom: 10px; }
+  .portrait {
+    width: 130px; height: 160px; margin: 0 auto 10px;
+    background: repeating-linear-gradient(135deg, var(--ink-soft) 0 2px, transparent 2px 6px), var(--paper);
+    border: 2px solid var(--rule); display: flex; align-items: flex-end; justify-content: center;
+  }
+  .portrait span { display:block; width:100%; background: var(--paper); color: var(--gold); font-size: 10px; padding: 3px 2px; border-top: 1px solid var(--rule); line-height: 1.3; }
+  h1.headline { font-family: 'Special Elite', monospace; font-size: clamp(22px, 6vw, 34px); line-height: 1.15; margin: 6px 0 10px; }
+  .slogan { font-style: italic; color: var(--ink-soft); font-size: 14px; max-width: 480px; margin: 0 auto; }
+
+  section { margin-bottom: 28px; }
+  h2.section-title { font-family: 'Special Elite', monospace; font-size: 15px; border-bottom: 1px solid var(--rule); padding-bottom: 6px; margin-bottom: 12px; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { border: 1px solid var(--rule); padding: 10px 12px; background: var(--paper); }
+  .stat .label { font-size: 11px; color: var(--ink-soft); }
+  .stat .value { font-size: 18px; font-weight: 700; margin-top: 2px; }
+  .stat.crit .value { color: var(--gold); }
+
+  table.menu { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.menu th, table.menu td { border: 1px solid var(--rule); padding: 8px; text-align: left; vertical-align: top; }
+  table.menu th { font-family: 'Special Elite', monospace; font-weight: normal; background: var(--paper); }
+  table.menu td.amount { font-weight: 700; white-space: nowrap; }
+  .pick-btn, .primary-btn { font-family: 'Courier Prime', monospace; font-size: 12px; padding: 5px 8px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink); cursor: pointer; }
+  .pick-btn:hover, .primary-btn:hover { background: var(--ink); color: var(--bg); }
+
+  /* ---- Bát xin ăn ---- */
+  .bowl-zone { text-align: center; padding: 10px 0 4px; }
+  .bowl { font-size: 54px; cursor: pointer; display: inline-block; user-select: none; filter: grayscale(100%); }
+  .bowl.shake { animation: shake .4s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0) rotate(0); }
+    20% { transform: translateX(-4px) rotate(-3deg); }
+    40% { transform: translateX(4px) rotate(3deg); }
+    60% { transform: translateX(-3px) rotate(-2deg); }
+    80% { transform: translateX(3px) rotate(2deg); }
+  }
+  .bowl.broken { animation: none; cursor: default; }
+  .bowl-count { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+  .bowl-milestone { font-size: 12px; color: var(--gold); margin-top: 6px; max-width: 380px; margin-left:auto; margin-right:auto; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--bg); padding: 10px 16px; font-size: 12px; border: 1px solid var(--rule);
+    max-width: 300px; text-align:center; opacity: 0; transition: opacity .25s, transform .25s; z-index: 20;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---- Slider viện trợ ---- */
+  .calc-box { border: 1px solid var(--rule); background: var(--paper); padding: 14px; text-align: center; }
+  .calc-emoji { font-size: 46px; margin-bottom: 6px; }
+  .calc-label { font-size: 13px; margin-bottom: 10px; min-height: 18px; }
+  input[type="range"] { width: 100%; }
+  .calc-amount { font-family: 'Special Elite', monospace; font-size: 15px; margin-top: 6px; }
+
+  /* ---- Nút hành động ---- */
+  .cta-row { display: flex; gap: 12px; align-items: center; justify-content: center; margin-top: 18px; flex-wrap: wrap; position: relative; min-height: 60px; }
+  .donate-btn {
+    font-family: 'Special Elite', monospace; font-size: 15px; padding: 14px 22px;
+    background: var(--danger-green); color: #fff; border: 2px solid var(--rule); cursor: pointer; animation: blink 1.4s infinite;
+  }
+  @keyframes blink { 0%,100% { background: var(--danger-green); } 50% { background: var(--danger-green-bright); } }
+  .flee-btn {
+    font-family: 'Courier Prime', monospace; font-size: 12px; padding: 10px 14px;
+    background: var(--paper); color: var(--ink-soft); border: 1px dashed var(--rule); cursor: pointer;
+    position: relative; transition: transform .15s ease-out, opacity .3s, scale .3s;
+  }
+  .flee-btn.vanish { transform: scale(0.01) !important; opacity: 0; pointer-events: none; }
+
+  /* ---- Overlay chung (modal) ---- */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: center; justify-content: center; z-index: 30; padding: 16px; }
+  .overlay.show { display: flex; }
+  .modal-card { background: var(--paper); border: 2px solid var(--rule); max-width: 340px; width: 100%; padding: 18px; text-align: center; }
+  .modal-card h3 { font-family: 'Special Elite', monospace; font-size: 15px; margin: 0 0 10px; }
+  .modal-card p { font-size: 13px; color: var(--ink-soft); margin: 8px 0; }
+  .modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .modal-actions button { font-family: 'Courier Prime', monospace; font-size: 13px; padding: 9px; border: 1px solid var(--rule); background: var(--ink); color: var(--bg); cursor: pointer; }
+  .modal-actions button.secondary { background: transparent; color: var(--ink); }
+
+  textarea.msg-box {
+    width: 100%; min-height: 60px; font-family: 'Courier Prime', monospace; font-size: 13px;
+    border: 1px solid var(--rule); background: #fff; color: #111; padding: 8px; resize: vertical;
+  }
+  .msg-note { font-size: 10px; color: var(--ink-soft); margin-top: 4px; text-align: left; }
+
+  .qr-card img { width: 100%; max-width: 240px; border: 1px solid var(--rule); }
+  .qr-verify {
+    text-align: left; font-size: 11px; background: #fff; color: #111; border: 1px solid var(--rule);
+    padding: 8px; margin-top: 10px; line-height: 1.5;
+  }
+  .qr-verify b { display: inline-block; min-width: 90px; }
+
+  footer.ticker-wrap {
+    position: fixed; left: 0; right: 0; bottom: 0; background: var(--ink); color: var(--bg);
+    border-top: 2px solid var(--rule); overflow: hidden; white-space: nowrap; font-size: 12px; padding: 8px 0; z-index: 15;
+  }
+  .ticker { display: inline-block; padding-left: 100%; animation: ticker 22s linear infinite; }
+  @keyframes ticker { to { transform: translateX(-100%); } }
+
+  .sound-toggle { position: fixed; top: 10px; right: 10px; z-index: 25; font-size: 11px; padding: 6px 10px; background: var(--paper); border: 1px solid var(--rule); color: var(--ink); cursor: pointer; }
+
+  @media (max-width: 420px) {
+    .stats { grid-template-columns: 1fr; }
+    .stamp { width: 92px; height: 92px; font-size: 9px; top: 70px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tear, .ticker, .donate-btn { animation: none !important; }
+  }
+</style>
 </head>
 <body>
-    <h1>Chào mừng đến với GitHub.io!</h1>
-    <p>Trang web đầu tiên của tôi đã hoạt động.</p>
+
+<div class="tears" id="tears"></div>
+<button class="sound-toggle" id="soundToggle">🔇 Nhạc buồn: TẮT</button>
+
+<div class="wrap">
+
+  <div class="stamp" id="stamp">HỘ NGHÈO<br>BỀN VỮNG</div>
+
+  <header class="masthead">
+    <div class="dateline">SỐ ĐẶC BIỆT — PHÁT HÀNH KHẨN CẤP</div>
+    <div class="portrait"><span>1999 – Nay<br>(Chưa chết nhưng sắp đói)</span></div>
+    <h1 class="headline">DỰ ÁN CỨU TRỢ KHẨN CẤP:<br>BẢO TỒN NGUYÊN KHÍ [TÊN BẠN]</h1>
+    <p class="slogan">"Một miếng khi đói bằng một gói khi no.<br>Một ngàn khi túng bằng vạn lời tri ân."</p>
+  </header>
+
+  <div class="countdown-bar">
+    Thời gian trước khi chủ nợ đến xiết đồ: <strong id="countdown">--:--:--</strong>
+  </div>
+
+  <section>
+    <h2 class="section-title">CHỈ SỐ SINH TỒN THỜI GIAN THỰC</h2>
+    <div class="stats">
+      <div class="stat crit"><div class="label">Chỉ số đói</div><div class="value">99% (Nguy cấp)</div></div>
+      <div class="stat"><div class="label">Số dư khả dụng</div><div class="value">1.250đ</div></div>
+      <div class="stat"><div class="label">Mì gói tồn kho</div><div class="value">0.5 gói (hết gia vị)</div></div>
+      <div class="stat"><div class="label">Mức độ mặt dày</div><div class="value">Vô cực</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">MENU CỨU ĐÓI</h2>
+    <table class="menu">
+      <thead><tr><th>Gói cứu trợ</th><th>Số tiền</th><th>Quyền lợi</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Gói Nuôi Sống</td><td class="amount">2.000đ</td><td>Được niệm 1 câu thần chú cầu may</td>
+          <td><button class="pick-btn" data-amount="2000" data-note="Cuu net 2k">Chọn</button></td></tr>
+        <tr><td>Gói Hồi Sinh</td><td class="amount">10.000đ</td><td>1 lời khen nhan sắc chân thành qua Zalo</td>
+          <td><button class="pick-btn" data-amount="10000" data-note="Mua goi mi hao hao">Chọn</button></td></tr>
+        <tr><td>Gói Đại Lễ Tạ</td><td class="amount">50.000đ</td><td>Video chắp tay vái lạy 3 lần gửi inbox</td>
+          <td><button class="pick-btn" data-amount="50000" data-note="Bo thi mieng com">Chọn</button></td></tr>
+        <tr><td>Gói Tái Sinh VIP</td><td class="amount">100.000đ</td><td>Ghi danh sổ gia phả, gọi "Ân công" 1 tuần</td>
+          <td><button class="pick-btn" data-amount="100000" data-note="Tai tro su song danh du">Chọn</button></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2 class="section-title">BẢNG TÍNH VIỆN TRỢ</h2>
+    <div class="calc-box">
+      <div class="calc-emoji" id="calcEmoji">🥚</div>
+      <div class="calc-label" id="calcLabel">1 quả trứng cút</div>
+      <input type="range" id="calcSlider" min="1000" max="500000" step="1000" value="5000">
+      <div class="calc-amount" id="calcAmount">5.000đ</div>
+      <button class="primary-btn" id="calcPickBtn" style="margin-top:10px;">Bố thí đúng số này</button>
+    </div>
+  </section>
+
+  <section class="bowl-zone">
+    <h2 class="section-title" style="text-align:center;border:none;">BÁT XIN ĂN</h2>
+    <div class="bowl" id="bowl">🥣</div>
+    <div class="bowl-count" id="bowlCount">Đã được gõ: 0 lần</div>
+    <div class="bowl-milestone" id="bowlMilestone"></div>
+  </section>
+
+  <div class="cta-row">
+    <button class="donate-btn" id="donateBtn">BỐ THÍ NGAY</button>
+    <button class="flee-btn" id="fleeBtn">Không rảnh / Kệ mày</button>
+  </div>
+
+</div>
+
+<footer class="ticker-wrap"><span class="ticker" id="ticker"></span></footer>
+
+<!-- Modal: nhập lời nhắn trước khi tạo QR -->
+<div class="overlay" id="msgOverlay">
+  <div class="modal-card">
+    <h3>Để lại lời nhắn cho kẻ khốn cùng</h3>
+    <p id="msgAmountLabel">Gói: 0đ</p>
+    <textarea class="msg-box" id="msgInput" maxlength="60" placeholder="Cầm lấy mà đi mua trà sữa đi đồ ăn hại..."></textarea>
+    <div class="msg-note">Tối đa 60 ký tự, tự động bỏ dấu để tương thích nội dung chuyển khoản ngân hàng.</div>
+    <div class="modal-actions">
+      <button id="msgConfirm">Tạo mã QR</button>
+      <button class="secondary" id="msgSkip">Bỏ qua, tạo QR luôn</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: QR -->
+<div class="overlay" id="qrOverlay">
+  <div class="modal-card qr-card">
+    <h3 id="qrTitle">QUÉT MÃ</h3>
+    <img id="qrImg" src="" alt="Mã QR chuyển khoản VietQR">
+    <div class="qr-verify" id="qrVerify"></div>
+    <p style="font-size:11px;">Nếu ảnh QR không hiện hoặc trông bất thường, hãy dùng thông tin chữ ở trên để chuyển khoản thủ công.</p>
+    <div class="modal-actions"><button class="secondary" id="qrClose">Đóng (khỏi bố thí)</button></div>
+  </div>
+</div>
+
+<!-- Modal: tra tấn lương tâm -->
+<div class="overlay" id="guiltOverlay">
+  <div class="modal-card">
+    <h3>Khoan đã...</h3>
+    <p>Bạn có chắc chắn muốn nhìn thấy bạn mình ăn mì tôm sống qua ngày?</p>
+    <div class="modal-actions">
+      <button id="guiltYes">Tao hối hận rồi, để tao chuyển tiền</button>
+      <button class="secondary" id="guiltNo">Vẫn từ chối</button>
+    </div>
+  </div>
+</div>
+
+<audio id="sadFlute" loop preload="none">
+  <!-- Placeholder: thêm file nhạc buồn không vi phạm bản quyền, vd assets/sad-flute.mp3 -->
+</audio>
+
+<script>
+  "use strict";
+
+  // ================== CẤU HÌNH NGÂN HÀNG (PLACEHOLDER — thay số thật) ==================
+  const BANK_ID = "970407";        // vd MB Bank — tra mã thật tại https://api.vietqr.io/v2/banks
+  const BANK_NAME = "Techcombank";
+  const ACCOUNT_NO = "219199948888";
+  const ACCOUNT_NAME = "LIEU VAN HUU";
+
+  function removeDiacritics(str) {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
+  }
+
+  function buildQrUrl(amount, note) {
+    const safeNote = removeDiacritics(String(note)).slice(0, 60);
+    const params = new URLSearchParams({
+      amount: String(amount),
+      addInfo: safeNote,
+      accountName: ACCOUNT_NAME,
+    });
+    return `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?${params.toString()}`;
+  }
+
+  // ================== Toast ==================
+  let toastEl;
+  function showToast(msg, ms = 2600) {
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.className = "toast";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    requestAnimationFrame(() => toastEl.classList.add("show"));
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => toastEl.classList.remove("show"), ms);
+  }
+
+  // ================== Mưa nước mắt ==================
+  const tearsEl = document.getElementById("tears");
+  for (let i = 0; i < 18; i++) {
+    const t = document.createElement("div");
+    t.className = "tear";
+    t.style.left = Math.random() * 100 + "vw";
+    t.style.animationDuration = 4 + Math.random() * 5 + "s";
+    t.style.animationDelay = Math.random() * 6 + "s";
+    tearsEl.appendChild(t);
+  }
+
+  // ================== Con dấu ngẫu nhiên ==================
+  const stamps = ["HỘ NGHÈO<br>BỀN VỮNG", "CHỨNG NHẬN<br>ĐÓI RÁCH<br>CẤP ĐỘ 4"];
+  document.getElementById("stamp").innerHTML = stamps[Math.floor(Math.random() * stamps.length)];
+
+  // ================== Đếm ngược "chủ nợ đến xiết đồ" ==================
+  (function initCountdown() {
+    const KEY = "anxin_countdown_target";
+    let target = Number(sessionStorage.getItem(KEY) || 0);
+    const now = Date.now();
+    if (!target || target < now) {
+      const hours = 1 + Math.random() * 4; // 1-5 giờ ngẫu nhiên, giữ nguyên trong phiên
+      target = now + hours * 3600 * 1000;
+      sessionStorage.setItem(KEY, String(target));
+    }
+    const el = document.getElementById("countdown");
+    function tick() {
+      let diff = target - Date.now();
+      if (diff <= 0) {
+        // hết giờ -> gia hạn thêm cho vui, đời ăn mày không có hồi kết
+        target = Date.now() + (1 + Math.random() * 4) * 3600 * 1000;
+        sessionStorage.setItem(KEY, String(target));
+        diff = target - Date.now();
+      }
+      const h = String(Math.floor(diff / 3600000)).padStart(2, "0");
+      const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
+      const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+      el.textContent = `${h} giờ : ${m} phút : ${s} giây`;
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+
+  // ================== Bát xin ăn ==================
+  (function initBowl() {
+    const bowl = document.getElementById("bowl");
+    const countEl = document.getElementById("bowlCount");
+    const milestoneEl = document.getElementById("bowlMilestone");
+    const KEY = "anxin_bowl_clicks";
+    let clicks = Number(localStorage.getItem(KEY) || 0);
+
+    function render() {
+      countEl.textContent = `Đã được gõ: ${clicks} lần`;
+      if (clicks >= 50) {
+        bowl.textContent = "💔";
+        bowl.classList.add("broken");
+        milestoneEl.textContent = "Bát đã vỡ, giờ chỉ còn tài khoản ngân hàng để đựng tiền.";
+      } else if (clicks >= 10) {
+        milestoneEl.textContent = "Bạn đã gõ mòn cả đáy bát, xin hãy mở lòng chuyển khoản.";
+      }
+    }
+    render();
+
+    bowl.addEventListener("click", () => {
+      if (clicks >= 50) {
+        showToast("Bát vỡ rồi, không gõ được nữa đâu 😭");
+        return;
+      }
+      clicks += 1;
+      localStorage.setItem(KEY, String(clicks));
+      bowl.classList.remove("shake");
+      void bowl.offsetWidth;
+      bowl.classList.add("shake");
+      showToast("Keng! Cảm ơn thí chủ, nhưng tiếng kêu không làm no bụng 🙏");
+      render();
+      if (clicks === 10) showToast("Bạn đã gõ mòn cả đáy bát, xin hãy mở lòng chuyển khoản.", 3500);
+      if (clicks === 50) showToast("Bát đã vỡ, giờ chỉ còn tài khoản ngân hàng để đựng tiền.", 3500);
+    });
+  })();
+
+  // ================== Slider Bảng tính viện trợ ==================
+  (function initCalc() {
+    const slider = document.getElementById("calcSlider");
+    const emoji = document.getElementById("calcEmoji");
+    const label = document.getElementById("calcLabel");
+    const amountEl = document.getElementById("calcAmount");
+    const pickBtn = document.getElementById("calcPickBtn");
+
+    const tiers = [
+      { min: 0, max: 4999, emoji: "🪙", label: "Chưa đủ mua gì, nhưng vẫn quý" },
+      { min: 5000, max: 19999, emoji: "🥚", label: "1 quả trứng cút" },
+      { min: 20000, max: 49999, emoji: "🍔", label: "1 ổ bánh mì kẹp thịt" },
+      { min: 50000, max: 499999, emoji: "🍜", label: "1 bát phở bò tái lăn thêm quẩy" },
+      { min: 500000, max: Infinity, emoji: "🤝", label: "Bắt tay như đối tác ngoại giao (kèm vest tưởng tượng)" },
+    ];
+
+    function render() {
+      const v = Number(slider.value);
+      const tier = tiers.find((t) => v >= t.min && v <= t.max) || tiers[0];
+      emoji.textContent = tier.emoji;
+      label.textContent = tier.label;
+      amountEl.textContent = v.toLocaleString("vi-VN") + "đ";
+    }
+    slider.addEventListener("input", render);
+    render();
+
+    pickBtn.addEventListener("click", () => {
+      openMsgFlow(Number(slider.value), "Vien tro tuy tam theo thanh truot");
+    });
+  })();
+
+  // ================== Luồng: nhắn nhủ -> QR ==================
+  const msgOverlay = document.getElementById("msgOverlay");
+  const msgAmountLabel = document.getElementById("msgAmountLabel");
+  const msgInput = document.getElementById("msgInput");
+  let pendingAmount = 0;
+  let pendingNote = "";
+
+  function openMsgFlow(amount, note) {
+    pendingAmount = amount;
+    pendingNote = note;
+    msgAmountLabel.textContent = `Gói: ${Number(amount).toLocaleString("vi-VN")}đ`;
+    msgInput.value = "";
+    msgOverlay.classList.add("show");
+  }
+
+  document.getElementById("msgConfirm").addEventListener("click", () => {
+    const extra = msgInput.value.trim();
+    msgOverlay.classList.remove("show");
+    openQr(pendingAmount, extra ? `${pendingNote} - ${extra}` : pendingNote);
+  });
+  document.getElementById("msgSkip").addEventListener("click", () => {
+    msgOverlay.classList.remove("show");
+    openQr(pendingAmount, pendingNote);
+  });
+
+  // ================== QR modal ==================
+  const qrOverlay = document.getElementById("qrOverlay");
+  const qrImg = document.getElementById("qrImg");
+  const qrTitle = document.getElementById("qrTitle");
+  const qrVerify = document.getElementById("qrVerify");
+
+  function openQr(amount, note) {
+    const safeNote = removeDiacritics(String(note)).slice(0, 60);
+    qrTitle.textContent = `QUÉT MÃ — ${Number(amount).toLocaleString("vi-VN")}đ`;
+    qrImg.src = buildQrUrl(amount, note);
+    qrVerify.innerHTML = `
+      <div><b>Ngân hàng:</b> ${BANK_NAME}</div>
+      <div><b>Số TK:</b> ${ACCOUNT_NO}</div>
+      <div><b>Chủ TK:</b> ${ACCOUNT_NAME}</div>
+      <div><b>Số tiền:</b> ${Number(amount).toLocaleString("vi-VN")}đ</div>
+      <div><b>Nội dung:</b> ${safeNote}</div>
+    `;
+    qrOverlay.classList.add("show");
+  }
+  document.getElementById("qrClose").addEventListener("click", () => qrOverlay.classList.remove("show"));
+
+  document.querySelectorAll(".pick-btn").forEach((btn) => {
+    btn.addEventListener("click", () => openMsgFlow(Number(btn.dataset.amount), btn.dataset.note));
+  });
+  document.getElementById("donateBtn").addEventListener("click", () => openMsgFlow(10000, "Bo thi tuy tam"));
+
+  // ================== Nút trốn chạy + modal tra tấn lương tâm ==================
+  const fleeBtn = document.getElementById("fleeBtn");
+  const ctaRow = fleeBtn.parentElement;
+  const guiltOverlay = document.getElementById("guiltOverlay");
+
+  function dodge() {
+    const rowRect = ctaRow.getBoundingClientRect();
+    const maxX = Math.max(rowRect.width - fleeBtn.offsetWidth - 8, 0);
+    const maxY = Math.max(rowRect.height - fleeBtn.offsetHeight - 8, 0);
+    const x = Math.random() * maxX;
+    const y = (Math.random() - 0.5) * maxY;
+    fleeBtn.style.transform = `translate(${x - fleeBtn.offsetLeft + 40}px, ${y}px)`;
+    fleeBtn.textContent = "Bấm trượt rồi lêu lêu 😝";
+  }
+  fleeBtn.addEventListener("mouseenter", dodge);
+  fleeBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    dodge();
+  });
+  fleeBtn.addEventListener("click", () => {
+    guiltOverlay.classList.add("show");
+  });
+
+  document.getElementById("guiltYes").addEventListener("click", () => {
+    guiltOverlay.classList.remove("show");
+    openMsgFlow(50000, "Bo thi mieng com");
+  });
+  document.getElementById("guiltNo").addEventListener("click", (e) => {
+    const btn = e.currentTarget;
+    btn.classList.add("vanish");
+    setTimeout(() => {
+      guiltOverlay.classList.remove("show");
+      btn.classList.remove("vanish");
+    }, 320);
+  });
+
+  // ================== Ticker ==================
+  const messages = [
+    "Cảm tạ thí chủ Nam vừa tài trợ 10k lúc 10:15...",
+    "Đội ơn bồ tát Linh đã gửi 20k mua bánh bao...",
+    "Xin cảm tạ ân nhân giấu tên vừa bố thí 2k cầu bình an...",
+    "Ghi danh sổ vàng: thí chủ Hương — 100k, chính thức thành Ân công...",
+  ];
+  document.getElementById("ticker").textContent = messages.join("     ★     ") + "     ★     ";
+
+  // ================== Nhạc buồn (placeholder) ==================
+  const audioEl = document.getElementById("sadFlute");
+  const soundBtn = document.getElementById("soundToggle");
+  let soundOn = false;
+  soundBtn.addEventListener("click", () => {
+    soundOn = !soundOn;
+    soundBtn.textContent = soundOn ? "🔊 Nhạc buồn: BẬT" : "🔇 Nhạc buồn: TẮT";
+    if (soundOn) {
+      if (audioEl.currentSrc) {
+        audioEl.play().catch(() => showToast("Chưa có file nhạc — thêm src vào thẻ <audio>."));
+      } else {
+        showToast("Chưa có file nhạc hợp lệ bản quyền — thêm vào thẻ <audio> trong code.");
+      }
+    } else {
+      audioEl.pause();
+    }
+  });
+</script>
+
 </body>
 </html>
